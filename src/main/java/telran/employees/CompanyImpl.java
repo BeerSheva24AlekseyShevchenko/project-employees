@@ -8,7 +8,7 @@ import java.util.NoSuchElementException;
 import java.util.TreeMap;
 
 public class CompanyImpl implements Company {
-    private HashMap<Long, Employee> employees = new HashMap<>();
+    private TreeMap<Long, Employee> employees = new TreeMap<>();
     private HashMap<String, List<Employee>> departments = new HashMap<>();
     private TreeMap<Float, List<Manager>> managersFactor = new TreeMap<>();
 
@@ -40,9 +40,7 @@ public class CompanyImpl implements Company {
     }
 
     /**
-     * Time complexity:
-     * Average: O(1)
-     * Worst: O(log n) for managers.
+     * Time complexity: O(log n).
      */
     @Override
     public void addEmployee(Employee empl) {
@@ -76,7 +74,7 @@ public class CompanyImpl implements Company {
     }
 
     /**
-     * Time complexity: O(1)
+     * Time complexity: O(log n)
      */
     @Override
     public Employee getEmployee(long id) {
@@ -84,9 +82,7 @@ public class CompanyImpl implements Company {
     }
 
     /**
-     * Time complexity:
-     * Average: O(1)
-     * Worst: O(log n) for managers.
+     * Time complexity: O(log n)
      */
     @Override
     public Employee removeEmployee(long id) {
