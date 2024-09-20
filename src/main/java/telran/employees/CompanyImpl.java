@@ -40,7 +40,9 @@ public class CompanyImpl implements Company {
     }
 
     /**
-     * Complexity: O(1) + O(log n)
+     * Time complexity:
+     * Average: O(1)
+     * Worst: O(log n) for managers.
      */
     @Override
     public void addEmployee(Employee empl) {
@@ -54,7 +56,7 @@ public class CompanyImpl implements Company {
     }
 
     /**
-     * Complexity: O(log n)
+     * Time complexity: O(log n)
      */
     private void addManager(Employee empl) {
         if (empl instanceof Manager manager) {
@@ -63,7 +65,7 @@ public class CompanyImpl implements Company {
     }
 
     /**
-     * Complexity: O(1)
+     * Time complexity: O(1)
      */
     private void addDepartment(Employee empl) {
         String department = empl.getDepartment();
@@ -74,7 +76,7 @@ public class CompanyImpl implements Company {
     }
 
     /**
-     * Complexity: O(1)
+     * Time complexity: O(1)
      */
     @Override
     public Employee getEmployee(long id) {
@@ -82,7 +84,9 @@ public class CompanyImpl implements Company {
     }
 
     /**
-     * Complexity: O(1) + O(log n)
+     * Time complexity:
+     * Average: O(1)
+     * Worst: O(log n) for managers.
      */
     @Override
     public Employee removeEmployee(long id) {
@@ -99,7 +103,7 @@ public class CompanyImpl implements Company {
     }
 
     /**
-     * Complexity: O(log n)
+     * Time complexity: O(log n)
      */
     private void removeManager(Employee empl) {
         if (empl instanceof Manager manager) {
@@ -114,7 +118,7 @@ public class CompanyImpl implements Company {
     }
 
     /**
-     * Complexity: O(1)
+     * Time complexity: O(1)
      */
     private void removeDepartment(Employee empl) {
         String department = empl.getDepartment();
@@ -145,7 +149,7 @@ public class CompanyImpl implements Company {
     }
 
     /**
-     * Complexity: O(1)
+     * Time complexity: O(1)
      */
     @Override
     public Manager[] getManagersWithMostFactor() {
