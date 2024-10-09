@@ -1,5 +1,10 @@
 package telran.employees;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -7,7 +12,13 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.TreeMap;
 
-public class CompanyImpl implements Company {
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import telran.io.Persistable;
+
+public class CompanyImpl implements Company, Persistable {
     private TreeMap<Long, Employee> employees = new TreeMap<>();
     private HashMap<String, List<Employee>> departments = new HashMap<>();
     private TreeMap<Float, List<Manager>> managersFactor = new TreeMap<>();
@@ -94,7 +105,7 @@ public class CompanyImpl implements Company {
 
         removeDepartment(removedEmpl);
         removeManager(removedEmpl);
-        
+
         return removedEmpl;
     }
 
@@ -121,7 +132,7 @@ public class CompanyImpl implements Company {
         if (department != null) {
             List<Employee> employees = departments.get(department);
             employees.remove(empl);
-    
+
             if (employees.isEmpty()) {
                 departments.remove(department);
             }
@@ -156,4 +167,41 @@ public class CompanyImpl implements Company {
         return res;
     }
 
+    @Override
+    public void saveToFile(String fileName) {
+        try {
+            PrintWriter writer = new PrintWriter(fileName);
+            writer.println(serializeToJson().toString());
+            writer.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private JSONObject serializeToJson() {
+        JSONArray employeesJSON = new JSONArray();
+        employees.values().forEach(i -> employeesJSON.put(i.toString()));
+
+        JSONObject companyJSON = new JSONObject();
+        companyJSON.put("employees", employeesJSON);
+
+        return companyJSON;
+    }
+
+    @Override
+    public void restoreFromFile(String fileName) {
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(fileName));
+            deserializeFromJson(new JSONObject(reader.readLine()));
+            reader.close();
+        } catch (JSONException | IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void deserializeFromJson(JSONObject json) {
+        json.getJSONArray("employees").forEach(i -> {
+            addEmployee(Employee.getEmployee(i.toString()));
+        });
+    }
 }

@@ -9,6 +9,8 @@ import java.util.NoSuchElementException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import telran.io.Persistable;
+
 class CompanyTest {
 	private static final long ID1 = 123;
 	private static final int SALARY1 = 1000;
@@ -30,7 +32,6 @@ class CompanyTest {
 	private static final float FACTOR3 = 3;
 	private static final long ID6 = 400;
 	private static final long ID7 = 500;
-	private static final String EMPLOYEES_TEST_FILE = "employeesTest.data";
 	Employee empl1 = new WageEmployee(ID1, SALARY1, DEPARTMENT1, WAGE1, HOURS1);
 	Employee empl2 = new Manager(ID2, SALARY2, DEPARTMENT1, FACTOR1);
 	Employee empl3 = new SalesPerson(ID3, SALARY3, DEPARTMENT2, WAGE1, HOURS1, PERCENT1, SALES1);
@@ -42,7 +43,6 @@ class CompanyTest {
 		for (Employee empl : new Employee[] { empl1, empl2, empl3 }) {
 			company.addEmployee(empl);
 		}
-		;
 	}
 
 	@Test
@@ -77,8 +77,12 @@ class CompanyTest {
 
 	@Test
 	void testIterator() {
+		runTestIterator(company);
+	}
+
+	private void runTestIterator(Company comp) {
 		Employee[] expected = { empl2, empl1, empl3 };
-		Iterator<Employee> it = company.iterator();
+		Iterator<Employee> it = comp.iterator();
 		int index = 0;
 		while (it.hasNext()) {
 			assertEquals(expected[index++], it.next());
@@ -137,4 +141,31 @@ class CompanyTest {
 		assertArrayEquals(new String[] { DEPARTMENT1 }, company.getDepartments());
 	}
 
+	@Test
+	void jsonTest() {
+		Employee empl1 = new Employee(ID1, SALARY1, DEPARTMENT1);
+		Employee empl2 = new Manager(ID1, SALARY1, DEPARTMENT1, FACTOR1);
+		Employee empl3 = new SalesPerson(ID1, SALARY1, DEPARTMENT1, WAGE1, HOURS1, PERCENT1, SALES1);
+		Employee empl4 = new WageEmployee(ID1, SALARY1, DEPARTMENT1, WAGE1, HOURS1);
+		System.out.println(empl1);
+		System.out.println(empl2);
+		System.out.println(empl3);
+		System.out.println(empl4);
+	}
+
+	@Test
+	void jsonCreateTest() {
+		Employee empl1 = Employee.getEmployee(
+				"{\"className\":\"telran.employees.Manager\",\"id\":123,\"salary\":1000,\"department\":\"QA\",\"factor\":2}");
+		assertEquals(empl1, new Manager(ID1, SALARY1, DEPARTMENT1, FACTOR1));
+	}
+
+	@Test
+	void persistanceTest() {
+		((Persistable) company).saveToFile("company.data");
+		CompanyImpl comp = new CompanyImpl();
+		comp.restoreFromFile("company.data");
+
+		runTestIterator(comp);
+	}
 }
