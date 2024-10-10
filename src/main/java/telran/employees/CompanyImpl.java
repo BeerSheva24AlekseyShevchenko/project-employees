@@ -1,9 +1,7 @@
 package telran.employees;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,8 +9,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.TreeMap;
-
-import org.json.JSONException;
 
 import telran.io.Persistable;
 
@@ -167,23 +163,19 @@ public class CompanyImpl implements Company, Persistable {
 
     @Override
     public void saveToFile(String fileName) {
-        try {
-            PrintWriter writer = new PrintWriter(fileName);
-            employees.values().forEach(i -> writer.println(i.toString()));
-            writer.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+        try (PrintWriter writer = new PrintWriter(fileName);) {
+            forEach(writer::println);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
     @Override
     public void restoreFromFile(String fileName) {
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(fileName));
-            reader.lines().forEach(i -> addEmployee(Employee.getEmployee(i.toString())));
-            reader.close();
-        } catch (JSONException | IOException e) {
-            e.printStackTrace();
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+            reader.lines().forEach(i -> addEmployee(Employee.getEmployee(i)));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }
