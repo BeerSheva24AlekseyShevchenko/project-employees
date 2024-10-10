@@ -12,9 +12,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.TreeMap;
 
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import telran.io.Persistable;
 
@@ -171,37 +169,21 @@ public class CompanyImpl implements Company, Persistable {
     public void saveToFile(String fileName) {
         try {
             PrintWriter writer = new PrintWriter(fileName);
-            writer.println(serializeToJson().toString());
+            employees.values().forEach(i -> writer.println(i.toString()));
             writer.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
     }
 
-    private JSONObject serializeToJson() {
-        JSONArray employeesJSON = new JSONArray();
-        employees.values().forEach(i -> employeesJSON.put(i.toString()));
-
-        JSONObject companyJSON = new JSONObject();
-        companyJSON.put("employees", employeesJSON);
-
-        return companyJSON;
-    }
-
     @Override
     public void restoreFromFile(String fileName) {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(fileName));
-            deserializeFromJson(new JSONObject(reader.readLine()));
+            reader.lines().forEach(i -> addEmployee(Employee.getEmployee(i.toString())));
             reader.close();
         } catch (JSONException | IOException e) {
             e.printStackTrace();
         }
-    }
-
-    private void deserializeFromJson(JSONObject json) {
-        json.getJSONArray("employees").forEach(i -> {
-            addEmployee(Employee.getEmployee(i.toString()));
-        });
     }
 }
