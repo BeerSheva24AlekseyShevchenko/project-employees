@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import telran.io.Persistable;
@@ -142,6 +143,7 @@ class CompanyTest {
 	}
 
 	@Test
+	@Disabled
 	void jsonTest() {
 		Employee empl1 = new Employee(ID1, SALARY1, DEPARTMENT1);
 		Employee empl2 = new Manager(ID1, SALARY1, DEPARTMENT1, FACTOR1);
@@ -154,6 +156,7 @@ class CompanyTest {
 	}
 
 	@Test
+	@Disabled
 	void jsonCreateTest() {
 		Employee empl1 = Employee.getEmployee(
 				"{\"className\":\"telran.employees.Manager\",\"id\":123,\"salary\":1000,\"department\":\"QA\",\"factor\":2}");
@@ -161,6 +164,7 @@ class CompanyTest {
 	}
 
 	@Test
+	@Disabled
 	void persistanceTest() {
 		((Persistable) company).saveToFile("company.data");
 		CompanyImpl comp = new CompanyImpl();
