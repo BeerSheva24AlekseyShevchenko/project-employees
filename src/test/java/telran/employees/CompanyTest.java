@@ -3,6 +3,7 @@ package telran.employees;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Arrays;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -171,5 +172,26 @@ class CompanyTest {
 		comp.restoreFromFile("company.data");
 
 		runTestIterator(comp);
+	}
+
+	@Test
+	void iteratorConcurrentTest() throws InterruptedException {
+		Iterator<Employee> iterator = company.iterator();
+
+		Thread thread1 = new Thread(() -> {
+			company.getEmployee(123);
+		});
+		thread1.start();
+		thread1.join();
+
+		assertEquals(120, iterator.next().getId());
+
+		Thread thread2 = new Thread(() -> {
+			company.addEmployee(new Employee());
+		});
+		thread2.start();
+		thread2.join();
+
+		assertThrows(ConcurrentModificationException.class, iterator::next);
 	}
 }
