@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -13,13 +12,13 @@ import java.util.TreeMap;
 
 import telran.io.Persistable;
 
-public class CompanyImpl extends SyncReadWrite implements Company, Persistable {
+public class CompanyImpl implements Company, Persistable {
     private TreeMap<Long, Employee> employees = new TreeMap<>();
     private HashMap<String, List<Employee>> departments = new HashMap<>();
     private TreeMap<Float, List<Manager>> managersFactor = new TreeMap<>();
 
     private class CompanyImplIterator implements Iterator<Employee> {
-        private Iterator<Employee> iterator = getEmployees().iterator();
+        private Iterator<Employee> iterator = employees.values().iterator();
         private Employee prev = null;
 
         @Override
@@ -45,24 +44,18 @@ public class CompanyImpl extends SyncReadWrite implements Company, Persistable {
         return new CompanyImplIterator();
     }
 
-    private Collection<Employee> getEmployees() {
-        return syncRead(employees::values);
-    }
-
     /**
      * Time complexity: O(log n).
      */
     @Override
     public void addEmployee(Employee empl) {
-        syncWrite(() -> {
-            Employee oldEmployee = employees.putIfAbsent(empl.getId(), empl);
-            if (oldEmployee != null) {
-                throw new IllegalStateException();
-            }
-    
-            addDepartment(empl);
-            addManager(empl);
-        });
+        Employee oldEmployee = employees.putIfAbsent(empl.getId(), empl);
+        if (oldEmployee != null) {
+            throw new IllegalStateException();
+        }
+
+        addDepartment(empl);
+        addManager(empl);
     }
 
     /**
@@ -70,9 +63,7 @@ public class CompanyImpl extends SyncReadWrite implements Company, Persistable {
      */
     private void addManager(Employee empl) {
         if (empl instanceof Manager manager) {
-            syncWrite(() -> {
-                managersFactor.computeIfAbsent(manager.getFactor(), i -> new ArrayList<>()).add(manager);
-            });
+            managersFactor.computeIfAbsent(manager.getFactor(), i -> new ArrayList<>()).add(manager);
         }
     }
 
@@ -80,13 +71,11 @@ public class CompanyImpl extends SyncReadWrite implements Company, Persistable {
      * Time complexity: O(1)
      */
     private void addDepartment(Employee empl) {
-        syncWrite(() -> {
-            String department = empl.getDepartment();
+        String department = empl.getDepartment();
 
-            if (department != null) {
-                departments.computeIfAbsent(department, i -> new ArrayList<>()).add(empl);
-            }
-        });
+        if (department != null) {
+            departments.computeIfAbsent(department, i -> new ArrayList<>()).add(empl);
+        }
     }
 
     /**
@@ -94,7 +83,7 @@ public class CompanyImpl extends SyncReadWrite implements Company, Persistable {
      */
     @Override
     public Employee getEmployee(long id) {
-        return syncRead(() -> employees.get(id));
+        return employees.get(id);
     }
 
     /**
@@ -102,18 +91,16 @@ public class CompanyImpl extends SyncReadWrite implements Company, Persistable {
      */
     @Override
     public Employee removeEmployee(long id) {
-        return syncWrite(() -> {
-            Employee removedEmpl = employees.remove(id);
+        Employee removedEmpl = employees.remove(id);
 
-            if (removedEmpl == null) {
-                throw new NoSuchElementException();
-            }
-    
-            removeDepartment(removedEmpl);
-            removeManager(removedEmpl);
-    
-            return removedEmpl;
-        });
+        if (removedEmpl == null) {
+            throw new NoSuchElementException();
+        }
+
+        removeDepartment(removedEmpl);
+        removeManager(removedEmpl);
+
+        return removedEmpl;
     }
 
     /**
@@ -121,15 +108,13 @@ public class CompanyImpl extends SyncReadWrite implements Company, Persistable {
      */
     private void removeManager(Employee empl) {
         if (empl instanceof Manager manager) {
-            syncWrite(() -> {
-                Float factor = manager.getFactor();
-                List<Manager> managers = managersFactor.get(factor);
-                managers.remove(manager);
-    
-                if (managers.isEmpty()) {
-                    managersFactor.remove(factor);
-                }
-            });
+            Float factor = manager.getFactor();
+            List<Manager> managers = managersFactor.get(factor);
+            managers.remove(manager);
+
+            if (managers.isEmpty()) {
+                managersFactor.remove(factor);
+            }
         }
     }
 
@@ -137,37 +122,33 @@ public class CompanyImpl extends SyncReadWrite implements Company, Persistable {
      * Time complexity: O(1)
      */
     private void removeDepartment(Employee empl) {
-        syncWrite(() -> {
-            String department = empl.getDepartment();
-            if (department != null) {
-                List<Employee> employees = departments.get(department);
-                employees.remove(empl);
-    
-                if (employees.isEmpty()) {
-                    departments.remove(department);
-                }
+        String department = empl.getDepartment();
+        if (department != null) {
+            List<Employee> employees = departments.get(department);
+            employees.remove(empl);
+
+            if (employees.isEmpty()) {
+                departments.remove(department);
             }
-        });
+        }
     }
 
     @Override
     public int getDepartmentBudget(String department) {
-        return syncRead(() -> {
-            int sum = 0;
-            List<Employee> employees = departments.get(department);
-    
-            if (employees != null) {
-                sum = employees.stream().mapToInt(i -> i.computeSalary()).sum();
-            }
+        int sum = 0;
+        List<Employee> employees = departments.get(department);
 
-            return sum;
-        });
+        if (employees != null) {
+            sum = employees.stream().mapToInt(i -> i.computeSalary()).sum();
+        }
+
+        return sum;
 
     }
 
     @Override
     public String[] getDepartments() {
-        return syncRead(() -> departments.keySet().stream().sorted().toArray(String[]::new));
+        return departments.keySet().stream().sorted().toArray(String[]::new);
     }
 
     /**
@@ -175,34 +156,28 @@ public class CompanyImpl extends SyncReadWrite implements Company, Persistable {
      */
     @Override
     public Manager[] getManagersWithMostFactor() {
-        return syncRead(() -> {
-            Manager[] res = new Manager[0];
-            if (!managersFactor.isEmpty()) {
-                res = managersFactor.lastEntry().getValue().toArray(new Manager[0]);
-            }
-            return res;
-        });
+        Manager[] res = new Manager[0];
+        if (!managersFactor.isEmpty()) {
+            res = managersFactor.lastEntry().getValue().toArray(new Manager[0]);
+        }
+        return res;
     }
 
     @Override
     public void saveToFile(String fileName) {
-        syncWrite(() -> {
-            try (PrintWriter writer = new PrintWriter(fileName);) {
-                forEach(writer::println);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
+        try (PrintWriter writer = new PrintWriter(fileName);) {
+            forEach(writer::println);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void restoreFromFile(String fileName) {
-        syncWrite(() -> {
-            try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
-                reader.lines().forEach(i -> addEmployee(Employee.getEmployee(i)));
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+            reader.lines().forEach(i -> addEmployee(Employee.getEmployee(i)));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

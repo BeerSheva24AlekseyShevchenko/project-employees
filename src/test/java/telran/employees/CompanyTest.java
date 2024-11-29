@@ -37,7 +37,7 @@ class CompanyTest {
 	Employee empl1 = new WageEmployee(ID1, SALARY1, DEPARTMENT1, WAGE1, HOURS1);
 	Employee empl2 = new Manager(ID2, SALARY2, DEPARTMENT1, FACTOR1);
 	Employee empl3 = new SalesPerson(ID3, SALARY3, DEPARTMENT2, WAGE1, HOURS1, PERCENT1, SALES1);
-	Company company = new CompanyImpl();
+	Company company = new ConcurrentCompanyImpl();
 
 	@BeforeEach
 	void setCompany() {
