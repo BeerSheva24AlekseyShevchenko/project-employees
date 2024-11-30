@@ -47,12 +47,7 @@ public class ConcurrentCompanyImpl extends CompanyImpl {
 
     @Override
     public void saveToFile(String fileName) {
-        syncWrite(() -> super.saveToFile(fileName));
-    }
-
-    @Override
-    public void restoreFromFile(String fileName) {
-        syncWrite(() -> super.restoreFromFile(fileName));
+        syncRead(() -> super.saveToFile(fileName));
     }
 
     private <T> T syncRead(Supplier<T> callback) {
@@ -64,6 +59,13 @@ public class ConcurrentCompanyImpl extends CompanyImpl {
             readLock.unlock();
         }
         return result;
+    }
+
+    protected void syncRead(Runnable callback) {
+        syncRead(() -> {
+            callback.run();
+            return null;
+        });
     }
 
     protected <T> T syncWrite(Supplier<T> callback) {
