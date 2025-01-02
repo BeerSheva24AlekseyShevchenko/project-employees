@@ -3,8 +3,8 @@ package telran.employees;
 import org.json.JSONObject;
 
 public class SalesPerson extends WageEmployee {
-    float percent;
-    long sales;
+    private float percent;
+    private long sales;
 
     public SalesPerson() {
     }
