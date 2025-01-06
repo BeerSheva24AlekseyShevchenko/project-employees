@@ -7,6 +7,7 @@ import telran.employees.Employee;
 import telran.employees.WageEmployee;
 
 @Entity
+@DiscriminatorValue("WageEmployee")
 public class WageEmployeeEntity extends EmployeeEntity {
     @Column
     private int wage;

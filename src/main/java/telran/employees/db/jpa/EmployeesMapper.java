@@ -7,8 +7,8 @@ import telran.employees.Employee;
 public class EmployeesMapper {
     private static final String ENTITY = "Entity";
     private static final String CLASS_NAME = "className";
-    private static final String DTO_PACKAGE = "telran.employee.";
-    private static final String ENTITIES_PACKAGE = "telran.employee.db.jpa.";
+    private static final String DTO_PACKAGE = "telran.employees.";
+    private static final String ENTITIES_PACKAGE = "telran.employees.db.jpa.";
 
     public static Employee toEmployeeDtoFromEntity(EmployeeEntity entity) {
         String entityClassName = entity.getClass().getSimpleName();

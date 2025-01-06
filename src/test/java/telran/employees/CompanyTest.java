@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import telran.io.Persistable;
 
-class CompanyTest {
+public class CompanyTest {
 	private static final long ID1 = 123;
 	private static final int SALARY1 = 1000;
 	private static final String DEPARTMENT1 = "QA";
@@ -37,10 +37,10 @@ class CompanyTest {
 	Employee empl1 = new WageEmployee(ID1, SALARY1, DEPARTMENT1, WAGE1, HOURS1);
 	Employee empl2 = new Manager(ID2, SALARY2, DEPARTMENT1, FACTOR1);
 	Employee empl3 = new SalesPerson(ID3, SALARY3, DEPARTMENT2, WAGE1, HOURS1, PERCENT1, SALES1);
-	Company company = new ConcurrentCompanyImpl();
+	protected Company company = new ConcurrentCompanyImpl();
 
 	@BeforeEach
-	void setCompany() {
+	protected void setCompany() {
 
 		for (Employee empl : new Employee[] { empl1, empl2, empl3 }) {
 			company.addEmployee(empl);
